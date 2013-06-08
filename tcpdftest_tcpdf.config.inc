@@ -41,12 +41,12 @@ define ('K_PATH_FONTS', K_PATH_MAIN.'fonts/');
   * cache directory for temporary files (full path)
   */
 
-define ('K_PATH_CACHE', drupal_realpath('public://tcpdf/cache'));
+define ('K_PATH_CACHE', drupal_realpath('temporary://tcpdf/cache'));
 
 /**
   * cache directory for temporary files (url path)
   */
-define ('K_PATH_URL_CACHE', drupal_realpath('public://tcpdf/cache'));
+define ('K_PATH_URL_CACHE', drupal_realpath('temporary://tcpdf/cache'));
 
 /**
   *images directory
