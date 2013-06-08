@@ -15,25 +15,70 @@ function tcpdftest_menu() {
   return $items;
 }
 
+function tcpdftest_init() {
+  dpm(is_writable('temporary://'));
+}
+
 /**
- * Page callback for 'tcpdftest'.
+ * Get a TCPDF instance.
+ *
+ * @return TCPDF
+ *   A TCPDF object.
  */
-function tcpdftest_test() {
+function tcpdftest_get_instance() {
+  if (defined('K_PATH_MAIN')) {
+    watchdog('tcpdftest', 'Cannot provide proper configuration for TCPDF.', NULL, SEVERITY_ERROR);
+    return FALSE;
+  }
   $config = array(
     'filetype' => 'inc',
     'filename' => 'tcpdftest_tcpdf.config',
     'module' => 'tcpdftest',
   );
-  $pdf = tcpdf_get_instance(array(), array(), $config);
+  return tcpdf_get_instance(array(), array(), $config);
+}
+
+/**
+ * Page callback for 'tcpdftest'.
+ */
+function tcpdftest_test() {
+  $pdf = tcpdftest_get_instance();
   $pdf->setPrintHeader(FALSE);
   $pdf->addPage();
-  $pdf->write1DBarcode('Testing', 'C128', 10, 10, NULL, 20);
-  $pdf->write2DBarcode('This is a test.', 'DATAMATRIX', 10, 40, NULL, 50);
+  $page_width = $pdf->getPageWidth();
+  $pdf->write1DBarcode('H-test', 'C128', $page_width - 90, 10, 80, 20, NULL, array(
+    'stretch' => TRUE,
+  ));
+  $pdf->startTransform();
+  $pdf->Rotate(-90);
+  $pdf->write1DBarcode('V-test', 'C128', 10, -10, 80, 20, NULL, array(
+    'stretch' => TRUE,
+  ));
+  $pdf->stopTransform();
+  $pdf->write2DBarcode('Data Matrix test.', 'DATAMATRIX', $page_width - 60, 40, NULL, 50);
+  $logo = drupal_realpath('themes/bartik/logo.png');
+  if ($logo) {
+    $pdf->Image($logo, 40, 10, 32.5, 36.5);
+    $pdf->SetXY(40, 10 + 36.5);
+    $pdf->SetTextColor(100, 100, 100);
+    $pdf->SetFontSize(10);
+    $pdf->Cell(32.5, 5, 'Drupal logo', 0, 0, 'C');
+    $pdf->setTextColor(0, 0, 0);
+  }
   $pdf->setX(10);
-  $pdf->SetY(100);
+  $pdf->setY(100);
   $pdf->SetFont('Helvetica', NULL, 12);
-  $pdf->Write(5, 'This is a test.');
-  $pdf->Write(5, "\n\n");
+  $pdf->Write(5, 'This is a test PDF.');
+  $pdf->Ln(10);
+  $pdf->Write(5, 'Source code: ');
+  $pdf->Ln();
+  $pdf->SetFont('Helvetica', 'U', 12);
+  $pdf->setTextColor(0, 0, 255);
+  $pdf->setX(20);
+  $pdf->Write(5, 'https://github.com/pjcdawkins/tcpdftest/blob/master/tcpdftest.module', 'https://github.com/pjcdawkins/tcpdftest/blob/master/tcpdftest.module');
+  $pdf->SetFont('Helvetica', NULL, 12);
+  $pdf->setTextColor(0, 0, 0);
+  $pdf->Ln(10);
   $lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tempor, augue nec sodales ultricies, nunc massa ornare arcu, dapibus porta lectus felis sed magna. Sed in massa velit. Pellentesque tincidunt est libero, vitae placerat justo hendrerit quis. Aliquam eleifend adipiscing odio, eget egestas ligula ultrices ut. Suspendisse potenti. Maecenas at sem nisl. Nunc semper nisi non mattis laoreet. Phasellus sagittis auctor gravida. Proin commodo lacus sed metus congue, a tempus est congue. Morbi scelerisque, lectus in consequat euismod, purus ligula gravida ligula, ut eleifend nunc orci nec dolor. Vivamus euismod nulla et risus aliquam ultricies. Aliquam ac tincidunt diam.
 
 Cras sollicitudin quis lacus et condimentum. Sed varius nulla eu rhoncus scelerisque. Donec vehicula sapien id pharetra sollicitudin. Cras convallis sit amet tellus non consequat. Vestibulum ut urna et neque feugiat lacinia eget sit amet libero. Sed aliquam ante eros, vel interdum est interdum eu. Vestibulum ut purus rhoncus, fermentum nulla ac, aliquet ipsum.';
