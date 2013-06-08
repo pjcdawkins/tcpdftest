@@ -15,10 +15,6 @@ function tcpdftest_menu() {
   return $items;
 }
 
-function tcpdftest_init() {
-  dpm(is_writable('temporary://'));
-}
-
 /**
  * Get a TCPDF instance.
  *
@@ -84,27 +80,4 @@ function tcpdftest_test() {
 Cras sollicitudin quis lacus et condimentum. Sed varius nulla eu rhoncus scelerisque. Donec vehicula sapien id pharetra sollicitudin. Cras convallis sit amet tellus non consequat. Vestibulum ut urna et neque feugiat lacinia eget sit amet libero. Sed aliquam ante eros, vel interdum est interdum eu. Vestibulum ut purus rhoncus, fermentum nulla ac, aliquet ipsum.';
   $pdf->Write(5, $lorem);
   $pdf->Output();
-}
-
-/**
- * Get a 1D barcode.
- *
- * @param str $str
- *   The string to encode.
- * @param str $type
- *   The type of barcode.
- *
- * @return TCPDFBarcode
- *   The barcode object.
- */
-function _tcpdf_get_barcode_1d($str, $type = 'C128') {
-  $path = libraries_get_path('tcpdf');
-  if ($path && file_exists($path . '/tcpdf_barcodes_1d.php')) {
-    require_once $path . '/tcpdf_barcodes_1d.php';
-  }
-  else {
-    drupal_set_message(t('TCPDF barcode library not found!'), 'error');
-    return FALSE;
-  }
-  return new TCPDFBarcode($str, $type);
 }
