@@ -1,0 +1,22 @@
+<?php
+
+function tcpdftest_menu() {
+  $items['tcpdftest'] = array(
+    'page callback' => 'tcpdftest_test',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+function tcpdftest_test() {
+  $config = array(
+    'filetype' => 'inc',
+    'filename' => 'tcpdftest_tcpdf.config',
+    'module' => 'tcpdftest',
+  );
+  $pdf = tcpdf_get_instance(array(), array(), $config);
+  $pdf->setPrintHeader(FALSE);
+  $pdf->AddPage();
+  $pdf->Write(5, 'This is a test');
+  $pdf->Output();
+}
