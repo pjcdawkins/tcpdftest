@@ -38,6 +38,7 @@ function tcpdftest_get_instance() {
  * Page callback for 'tcpdftest'.
  */
 function tcpdftest_test() {
+  $start_time = microtime(TRUE);
   $pdf = tcpdftest_get_instance();
   $pdf->setPrintHeader(FALSE);
   $pdf->addPage();
@@ -79,5 +80,12 @@ function tcpdftest_test() {
 
 Cras sollicitudin quis lacus et condimentum. Sed varius nulla eu rhoncus scelerisque. Donec vehicula sapien id pharetra sollicitudin. Cras convallis sit amet tellus non consequat. Vestibulum ut urna et neque feugiat lacinia eget sit amet libero. Sed aliquam ante eros, vel interdum est interdum eu. Vestibulum ut purus rhoncus, fermentum nulla ac, aliquet ipsum.';
   $pdf->Write(5, $lorem);
+  $pdf->Ln(10);
+  $pdf->Write(5, sprintf(
+    '%s (generated in %sms)',
+    format_date(REQUEST_TIME, 'long'),
+    number_format((microtime(TRUE) - $start_time) * 1000)
+  ), NULL, FALSE, 'R');
   $pdf->Output();
+  drupal_exit();
 }
