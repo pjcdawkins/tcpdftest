@@ -1,5 +1,12 @@
 <?php
+/**
+ * @file
+ * Main module file for TCPDF Test.
+ */
 
+/**
+ * Implements hook_menu().
+ */
 function tcpdftest_menu() {
   $items['tcpdftest'] = array(
     'page callback' => 'tcpdftest_test',
@@ -8,6 +15,9 @@ function tcpdftest_menu() {
   return $items;
 }
 
+/**
+ * Page callback for 'tcpdftest'.
+ */
 function tcpdftest_test() {
   $config = array(
     'filetype' => 'inc',
@@ -16,7 +26,40 @@ function tcpdftest_test() {
   );
   $pdf = tcpdf_get_instance(array(), array(), $config);
   $pdf->setPrintHeader(FALSE);
-  $pdf->AddPage();
-  $pdf->Write(5, 'This is a test');
+  $pdf->addPage();
+  $pdf->write1DBarcode('Testing', 'C128', 10, 10, NULL, 20);
+  $pdf->write2DBarcode('This is a test.', 'DATAMATRIX', 10, 40, NULL, 50);
+  $pdf->setX(10);
+  $pdf->SetY(100);
+  $pdf->SetFont('Helvetica', NULL, 12);
+  $pdf->Write(5, 'This is a test.');
+  $pdf->Write(5, "\n\n");
+  $lorem = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam tempor, augue nec sodales ultricies, nunc massa ornare arcu, dapibus porta lectus felis sed magna. Sed in massa velit. Pellentesque tincidunt est libero, vitae placerat justo hendrerit quis. Aliquam eleifend adipiscing odio, eget egestas ligula ultrices ut. Suspendisse potenti. Maecenas at sem nisl. Nunc semper nisi non mattis laoreet. Phasellus sagittis auctor gravida. Proin commodo lacus sed metus congue, a tempus est congue. Morbi scelerisque, lectus in consequat euismod, purus ligula gravida ligula, ut eleifend nunc orci nec dolor. Vivamus euismod nulla et risus aliquam ultricies. Aliquam ac tincidunt diam.
+
+Cras sollicitudin quis lacus et condimentum. Sed varius nulla eu rhoncus scelerisque. Donec vehicula sapien id pharetra sollicitudin. Cras convallis sit amet tellus non consequat. Vestibulum ut urna et neque feugiat lacinia eget sit amet libero. Sed aliquam ante eros, vel interdum est interdum eu. Vestibulum ut purus rhoncus, fermentum nulla ac, aliquet ipsum.';
+  $pdf->Write(5, $lorem);
   $pdf->Output();
+}
+
+/**
+ * Get a 1D barcode.
+ *
+ * @param str $str
+ *   The string to encode.
+ * @param str $type
+ *   The type of barcode.
+ *
+ * @return TCPDFBarcode
+ *   The barcode object.
+ */
+function _tcpdf_get_barcode_1d($str, $type = 'C128') {
+  $path = libraries_get_path('tcpdf');
+  if ($path && file_exists($path . '/tcpdf_barcodes_1d.php')) {
+    require_once $path . '/tcpdf_barcodes_1d.php';
+  }
+  else {
+    drupal_set_message(t('TCPDF barcode library not found!'), 'error');
+    return FALSE;
+  }
+  return new TCPDFBarcode($str, $type);
 }
